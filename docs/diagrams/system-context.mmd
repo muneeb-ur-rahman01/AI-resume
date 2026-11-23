@@ -1,0 +1,10 @@
+flowchart LR
+  cand([Candidate]) -->|HTTPS| cp[CareerPilot AI]
+  emp([Employer / Recruiter]) -->|HTTPS| cp
+  adm([Administrator]) -->|HTTPS| cp
+  cp -->|structured prompts, minimal text| llm[(LLM provider<br/>e.g. Anthropic Claude)]
+  cp -->|text to embed, opt-in| emb[(Embedding provider<br/>optional)]
+  cp -->|SMTP| mail[(Email relay)]
+  cp -->|private objects| s3[(S3-compatible storage)]
+  cp -. optional .-> av[(ClamAV)]
+  cp -. link only .-> ext[External employer ATS]

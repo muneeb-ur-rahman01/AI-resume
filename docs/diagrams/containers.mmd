@@ -1,0 +1,30 @@
+flowchart TB
+  subgraph Browser
+    ui[Next.js UI<br/>React, TanStack Query]
+  end
+  subgraph Web["web container (Next.js)"]
+    next[App Router pages<br/>+ /api/v1 rewrite proxy]
+  end
+  subgraph API["api container (FastAPI modular monolith)"]
+    routes[Routers /api/v1<br/>auth, candidate, employer, admin, public]
+    deps[Auth / CSRF / RBAC dependencies]
+    svc[Domain services<br/>auth, profiles, resumes, jobs, matching,<br/>generation, applications, privacy]
+    ai[AI layer<br/>providers, schemas, prompts,<br/>taxonomy, heuristics]
+    infra[Infra adapters<br/>storage, email, tasks, rate limit]
+  end
+  subgraph Worker["worker container (Celery, same codebase)"]
+    tasks[process_resume]
+  end
+  pg[(PostgreSQL 17 + pgvector)]
+  redis[(Redis)]
+  s3[(MinIO / S3)]
+  mail[(SMTP / Mailpit)]
+  llm[(LLM API)]
+  ui --> next --> routes --> deps --> svc
+  svc --> ai --> llm
+  svc --> infra
+  infra --> s3
+  infra --> mail
+  infra -->|enqueue| redis --> tasks --> svc
+  svc --> pg
+  infra -->|rate limits| redis

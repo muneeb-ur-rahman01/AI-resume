@@ -1,0 +1,18 @@
+sequenceDiagram
+  autonumber
+  actor E as Employer
+  actor A as Admin
+  participant API
+  participant DB as PostgreSQL
+  E->>API: POST /employer/companies
+  API->>DB: company + owner membership
+  E->>API: POST /employer/companies/{id}/verification
+  API->>DB: verification record with signals, status=pending
+  A->>API: POST /admin/companies/{id}/verification {approve}
+  API->>DB: status=verified, audit, notify owners
+  E->>API: POST /employer/jobs/parse {description}
+  API-->>E: suggested requirements (advisory, not saved)
+  E->>API: POST /employer/companies/{id}/jobs (draft)
+  E->>API: POST /employer/jobs/{id}/status {published}
+  API->>API: membership(write), state machine, company verified, deadline
+  API->>DB: status=published (pending_review if moderation enabled), embedding, audit

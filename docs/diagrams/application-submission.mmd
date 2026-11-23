@@ -1,0 +1,22 @@
+sequenceDiagram
+  autonumber
+  actor C as Candidate
+  participant API
+  participant L as LLM provider
+  participant DB as PostgreSQL
+  actor E as Employer
+  C->>API: GET /candidate/applications/preview?job_id
+  C->>API: POST /candidate/jobs/{id}/cover-letters/generate (consent required)
+  API->>L: confirmed facts + job, tagged as untrusted data
+  L-->>API: letter JSON
+  API->>API: unsupported-claim checks (skills, numbers, organizations)
+  API-->>C: draft v1 + flags
+  C->>API: POST /candidate/jobs/{id}/cover-letters (edited, v2)
+  C->>API: POST /candidate/applications {confirm: true} + Idempotency-Key
+  API->>DB: idempotency lookup, job published, external, duplicate checks
+  API->>DB: TX application(submitted) + snapshot + documents + history + key
+  API->>DB: notifications (candidate, company members)
+  API-->>C: 201 created (replay returns 200 with the same application)
+  E->>API: GET /employer/applications/{id} (records first_viewed_at)
+  E->>API: POST /employer/applications/{id}/status {shortlisted}
+  API->>DB: state machine, history, notify candidate

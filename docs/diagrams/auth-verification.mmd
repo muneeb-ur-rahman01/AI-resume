@@ -1,0 +1,19 @@
+sequenceDiagram
+  autonumber
+  actor U as User
+  participant API
+  participant DB as PostgreSQL
+  participant M as Email
+  U->>API: POST /auth/register
+  API->>DB: user + Argon2id hash + role (candidate or employer only)
+  API->>DB: sha256(token), 24h expiry
+  API->>M: verification link (raw token only in the email)
+  API-->>U: 202 generic message (identical if the email exists)
+  U->>API: POST /auth/verify-email {token}
+  API->>DB: atomic UPDATE where consumed_at IS NULL (single use)
+  U->>API: POST /auth/login
+  API->>API: per-IP and per-account throttling, dummy-hash timing equalization
+  API->>DB: user_sessions(sha256(session), sha256(csrf))
+  API-->>U: Set-Cookie cp_session (HttpOnly, SameSite=Lax) + cp_csrf (readable)
+  U->>API: state-changing request + X-CSRF-Token
+  API->>API: session expiry checks, Origin allow-list, CSRF hash match

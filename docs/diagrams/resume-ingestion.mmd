@@ -1,0 +1,31 @@
+sequenceDiagram
+  autonumber
+  actor C as Candidate
+  participant API
+  participant S as Object storage
+  participant DB as PostgreSQL
+  participant Q as Task queue
+  participant W as Worker
+  participant L as LLM provider
+  C->>API: POST /candidate/resumes (multipart, CSRF)
+  API->>API: authn + role, rate limit, size, extension, magic bytes, macro/script checks
+  API->>API: malware scan if configured (fails closed)
+  API->>S: put(random key, bytes)
+  API->>DB: documents + resumes(status=queued), audit
+  API->>Q: enqueue process_resume
+  API-->>C: 201 resume (queued)
+  Q->>W: process_resume(resume_id)
+  W->>S: get(bytes)
+  W->>W: extract text (pdfplumber / python-docx), OCR only if low text and enabled
+  alt AI-processing consent granted
+    W->>L: system rules + resume text tagged as untrusted (JSON schema output)
+    L-->>W: structured JSON
+    W->>W: validate (Pydantic), ground skills in source text, check dates
+  else no consent or AI failure
+    W->>W: deterministic heuristic extraction
+  end
+  W->>DB: extracted_profile_facts (stated/inferred + provenance), status=completed
+  W->>DB: notification (deduplicated)
+  C->>API: GET /candidate/resumes/{id} (review facts)
+  C->>API: POST /candidate/resumes/{id}/review {accept, reject}
+  API->>DB: user_confirmed profile rows, refresh embedding

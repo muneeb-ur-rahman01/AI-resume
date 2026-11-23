@@ -1,0 +1,25 @@
+{
+  "$description": "CareerPilot AI color tokens. Source of truth for apps/web/src/app/globals.css (@theme). Contrast ratios are WCAG 2.x values computed against the listed background.",
+  "color": {
+    "bg": { "value": "#f7f8fa", "usage": "Page background" },
+    "surface": { "value": "#ffffff", "usage": "Cards, inputs, header" },
+    "surface-muted": { "value": "#f1f3f6", "usage": "Table headers, chips, skeletons" },
+    "border": { "value": "#dfe3ea", "usage": "Default borders, dividers" },
+    "border-strong": { "value": "#c5ccd6", "usage": "Input borders, dashed upload zone" },
+    "text": { "value": "#141a24", "usage": "Primary text", "contrast_on_surface": "17.0:1" },
+    "text-muted": { "value": "#4f5b6b", "usage": "Secondary text", "contrast_on_surface": "6.9:1" },
+    "primary": { "value": "#1f4fd1", "usage": "Primary actions, links, focus ring", "contrast_white_text": "6.6:1" },
+    "primary-hover": { "value": "#1a43b3" },
+    "primary-soft": { "value": "#e8eefc", "usage": "Selected nav, info backgrounds" },
+    "success": { "value": "#13764a", "contrast_on_success_soft": "5.4:1" },
+    "success-soft": { "value": "#e5f4ec" },
+    "warning": { "value": "#8a5a00", "contrast_on_warning_soft": "5.5:1" },
+    "warning-soft": { "value": "#fdf3dc" },
+    "danger": { "value": "#b42318", "contrast_white_text": "6.5:1" },
+    "danger-soft": { "value": "#fdecea" },
+    "info": { "value": "#155e8a" },
+    "info-soft": { "value": "#e6f2fa" }
+  },
+  "radius": { "card": "0.75rem", "control": "0.5rem", "pill": "9999px" },
+  "font": { "sans": "Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" }
+}

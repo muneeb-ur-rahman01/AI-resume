@@ -1,0 +1,16 @@
+flowchart LR
+  user([Users]) --> lb[TLS load balancer / CDN]
+  lb --> web[web: Next.js standalone<br/>2+ replicas]
+  web -->|private network /api/v1| api[api: FastAPI / Uvicorn<br/>2+ replicas]
+  api --> pg[(Managed PostgreSQL + pgvector<br/>PITR backups)]
+  api --> redis[(Managed Redis)]
+  api --> s3[(S3 bucket, private, SSE)]
+  redis --> worker[worker: Celery<br/>autoscaled]
+  worker --> pg
+  worker --> s3
+  api --> smtp[(Transactional email)]
+  worker --> llm[(LLM API)]
+  api --> llm
+  api --> obs[(Logs / metrics / traces)]
+  secrets[(Secret manager)] -.-> api
+  secrets -.-> worker

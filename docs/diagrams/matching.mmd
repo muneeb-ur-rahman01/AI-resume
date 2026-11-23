@@ -1,0 +1,17 @@
+sequenceDiagram
+  autonumber
+  actor C as Candidate
+  participant API
+  participant DB as PostgreSQL + pgvector
+  C->>API: GET /candidate/recommendations
+  API->>DB: candidate view (confirmed skills, roles, preferences, embedding)
+  par lexical channel
+    API->>DB: published active jobs sharing confirmed skills
+  and semantic channel
+    API->>DB: ORDER BY embedding cosine distance LIMIT pool
+  end
+  API->>API: Stage A eligibility (explicit hard conflicts only)
+  API->>API: Stage D weighted components, renormalized over known data
+  API->>API: Stage E deterministic explanation
+  API->>DB: upsert job_recommendations, impression events if consented
+  API-->>C: ranked list + explanations + disclaimer
